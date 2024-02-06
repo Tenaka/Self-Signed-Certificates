@@ -44,6 +44,8 @@ New-SelfSignedCertificate @params -OutVariable newCodeSigningCert
 #Do this to prevent Set-authenticode from displaying an error
 Export-Certificate -Cert "cert:\CurrentUser\My\$($newCodeSigningCert.Thumbprint)" -FilePath "$($certExport)\CodeSigning.cer"
 Import-Certificate -FilePath "$($certExport)\CodeSigning.cer" -Cert Cert:\LocalMachine\root
+#Import into Trusted Publisher to keep the process in-line with the steps for the client - If not this step can be ignored 
+Import-Certificate -FilePath "$($certExport)\CodeSigning.cer" -Cert Cert:\LocalMachine\AuthRoot
 
 <#<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
       Process C:\_PSScritps and Sign any PowerShell Scripts
@@ -78,12 +80,12 @@ foreach ($PSscriptItem in $gtPSscripts)
 <#<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
                 Import Certificate on Clients 
 <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>#>
-#Copy over the .cer and import into Trusted Root of any client that will execute the signed scripts
+#Copy over the .cer and import into Trusted Root and Trusted Publisher of any client that will execute the signed scripts
 #Copy over signed scripts
 #Powershell Script execution to Signed only in Group Policy
 
-##Import-Certificate -FilePath "$($certExport)\CodeSigning.cer" -Cert Cert:\LocalMachine\root
-
+##Import-Certificate -FilePath "$($certExport)\CodeSigning.cer" -Cert Cert:\LocalMachine\root          
+##Import-Certificate -FilePath "$($certExport)\CodeSigning.cer" -Cert Cert:\LocalMachine\AuthRoot
 
 <#<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
             WARNING - Export Private Key to Keep it Safe
